@@ -22,6 +22,11 @@ MQTT_HOST = "mqtt-e.ecoflow.com"
 MQTT_PORT = 8883
 
 UNKNOWN_PARAMS_FILE = "ecoflow_stream_unknown_params.json"
+PV_ENERGY_FILE = "ecoflow_stream_pv_energy.json"
+
+# Zähler, die beide Geräte (Ultra X und AC Pro) unter demselben Key senden.
+# Hauptgerät → "<key>", Sekundärgerät → "acpro_<key>"
+PER_DEVICE_KEYS = {"cycles", "accuChgEnergy", "accuDsgEnergy"}
 
 # ─────────────────────────────────────────────────────────────────────────────
 # SENSOR-DEFINITIONEN
@@ -364,6 +369,35 @@ SENSOR_DEFINITIONS = {
     },
     "accuDsgEnergy": {
         "name": "Gesamt Entladeenergie",
+        "unit": UnitOfEnergy.WATT_HOUR,
+        "device_class": SensorDeviceClass.ENERGY,
+        "state_class": SensorStateClass.TOTAL_INCREASING,
+        "factor": 1,
+        "icon": "mdi:battery-minus",
+    },
+
+    # ── ZÄHLER DES SEKUNDÄRGERÄTS (AC Pro) ──────────────────────────────────
+    # Beide Geräte senden cycles/accuChgEnergy/accuDsgEnergy unter demselben Key.
+    # Der Koordinator legt die Werte des Sekundärgeräts unter "acpro_<key>" ab,
+    # damit die Zähler nicht zwischen beiden Geräten hin- und herspringen.
+    "acpro_cycles": {
+        "name": "Ladezyklen AC Pro",
+        "unit": None,
+        "device_class": None,
+        "state_class": SensorStateClass.TOTAL_INCREASING,
+        "factor": 1,
+        "icon": "mdi:battery-sync",
+    },
+    "acpro_accuChgEnergy": {
+        "name": "Gesamt Ladeenergie AC Pro",
+        "unit": UnitOfEnergy.WATT_HOUR,
+        "device_class": SensorDeviceClass.ENERGY,
+        "state_class": SensorStateClass.TOTAL_INCREASING,
+        "factor": 1,
+        "icon": "mdi:battery-plus",
+    },
+    "acpro_accuDsgEnergy": {
+        "name": "Gesamt Entladeenergie AC Pro",
         "unit": UnitOfEnergy.WATT_HOUR,
         "device_class": SensorDeviceClass.ENERGY,
         "state_class": SensorStateClass.TOTAL_INCREASING,

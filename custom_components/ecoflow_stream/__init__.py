@@ -31,6 +31,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         secondary_sn=secondary_sn,
     )
 
+    # Gespeicherte Zähler laden (Dateizugriff im Executor)
+    await coordinator.async_load_storage()
+
     # Erster Datenabruf
     await coordinator.async_config_entry_first_refresh()
 
@@ -53,7 +56,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Integration entfernen."""
     coordinator: EcoFlowCoordinator = hass.data[DOMAIN][entry.entry_id]
-    coordinator.stop()
+    await hass.async_add_executor_job(coordinator.stop)
 
     unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unloaded:

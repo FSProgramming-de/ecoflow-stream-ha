@@ -1,5 +1,6 @@
 """EcoFlow Stream Sensoren."""
 import logging
+from datetime import datetime
 from typing import Any
 
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass, SensorStateClass
@@ -217,5 +218,8 @@ class EcoFlowEnergySensor(EcoFlowBaseSensor):
             return None
 
     @property
-    def extra_state_attributes(self) -> dict:
-        return {"last_reset": "daily"}
+    def last_reset(self) -> datetime | None:
+        """Beginn des Tages, für den die Tageswerte gelten (nur Energie-Sensoren mit state_class TOTAL)."""
+        if self._attr_device_class is None:
+            return None
+        return self.coordinator.energy_today_start
