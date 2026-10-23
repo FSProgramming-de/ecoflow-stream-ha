@@ -94,6 +94,10 @@ class EcoFlowCoordinator(DataUpdateCoordinator):
             if data:
                 self._pv_energy_wh = float(data.get("pv_energy_wh", 0.0))
                 _LOGGER.debug("PV-Energiezähler geladen: %.1f Wh", self._pv_energy_wh)
+            # Gespeicherten Stand sofort melden – sonst bleibt der Sensor nach einem Neustart
+            # ohne PV-Leistung (z. B. nachts) bis zum nächsten Sonnenaufgang „nicht verfügbar“
+            if self._pv_energy_wh > 0:
+                self.realtime_data["pv_energy_total_wh"] = round(self._pv_energy_wh, 1)
         except Exception as ex:
             _LOGGER.warning("PV-Energiezähler konnte nicht geladen werden: %s", ex)
         try:
